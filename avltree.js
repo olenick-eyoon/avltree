@@ -1,236 +1,306 @@
 console.clear();
 
-function addNode(node, value, info) {
-  let hDelta;
-
-  if (value < node.value) {
-    info.path.push(0);
-
-    if (node.left == null) {
-      node.left = new Node(value, null, null);
-
-      node.leftHeight = 1;
-
-      info.height.push(0);
-    } else {
-    	let returned = addNode(node.left, value, info);
-      info.height.push(0);
-      node.leftHeight = info.height.length;
-
-			if(returned !== node.left){
-      node.left = returned;
-      }
-
-      node = checkValance(node, info);
-    }
-  } else {
-    info.path.push(1);
-
-    if (node.right == null) {
-      node.right = new Node(value, null, null);
-
-      node.rightHeight = 1;
-
-      info.height.push(0);
-    } else {
-      let returned = addNode(node.right, value, info);
-      info.height.push(0);
-      node.rightHeight = info.height.length;
-      
-      if (returned !== node.right){
-      	node.right = returned;
-      }
-
-      node = checkValance(node, info);
-    }
-  }
-  
-  return node;
-}
-
-function checkValance(node, info) {
-  let hDelta = node.rightHeight - node.leftHeight;
-
-  if (hDelta < -1 || hDelta > 1) {
-    console.log("Need rotation");
-    return rotateNodes(node, info);
-  }
-  
-  return node;
-}
-
-function rotateNodes(node, info) {
-  let root = node;
-
-  if (info.path[info.path.length-2] === 0) {
-    console.log("To the right.");
-    if (info.path[info.path.length-1] === 1) {
-      console.log("Second form.");
-      let tempNode = node.left;
-
-      node.left = tempNode.right;
-      node.left.left = tempNode;
-      tempNode.right = null;
-      
-      node.left.leftHeight += 1;
-      node.left.left.right = null;
-      node.left.left.rightHeight = 0;
-    }
-
-    console.log("First form");
-    root = node.left;
-    node.left = root.right;
-    root.right = node;
-    
-    root.rightHeight += 1;
-    root.right.leftHeight -= 2;
-  } else {
-    console.log("To the left.");
-    if (info.path[info.path.length-1] === 0) {
-      console.log("Second form.");
-      let tempNode = node.right;
-
-      node.right = tempNode.left;
-      node.right.right = tempNode;
-      tempNode.left = null;
-      
-      node.right.rightHeight += 1;
-      node.right.right.left = null;
-      node.right.right.leftHeight = 0;
-    }
-
-    console.log("First form");
-    root = node.right;
-    node.right = root.left;
-    root.left = node;
-    
-    root.leftHeight += 1;
-    root.left.rightHeight -= 2;
-  }
-  
-  info.path.pop();
-  info.height.pop();
-
-	return root;
-}
-
-function searchNode(node, value) {
-  if (node.value === value) {
-    return true;
-  } else if (value < node.value) {
-    if (node.left == null) {
-      return false;
-    }
-
-    return searchNode(node.left, value);
-  } else if (value > node.value && node.right != null) {
-    if (node.right == null) {
-      return false;
-    }
-
-    return searchNode(node.right, value);
-  } else {
-    return false;
-  }
-}
-
-function printNode(node, values) {
-  if (node.left != null) {
-    printNode(node.left, values);
-  }
-
-  if (node != null) {
-    values.push({
-      val: node.value,
-      lh: node.leftHeight,
-      rh: node.rightHeight
-    });
-  }
-
-  if (node.right != null) {
-    printNode(node.right, values);
-  }
-}
-
 class Node {
-  constructor(value, left, right) {
-    this._value = value;
-    this._left = left;
-    this._right = right;
-    this._leftHeight = 0;
-    this._rightHeight = 0;
-  }
+    constructor(value, left, right) {
+        this._value = value;
+        this._left = new NullNode();
+        this._right = new NullNode();
+        this._leftHeight = 0;
+        this._rightHeight = 0;
+    }
 
-  get left() {
-    return this._left;
-  }
-  set left(left) {
-    this._left = left;
-  }
+    get left() {
+        return this._left;
+    }
+    set left(left) {
+        this._left = left;
+    }
 
-  get right() {
-    return this._right;
-  }
-  set right(right) {
-    this._right = right;
-  }
+    get right() {
+        return this._right;
+    }
+    set right(right) {
+        this._right = right;
+    }
 
-  get leftHeight() {
-    return this._leftHeight;
-  }
+    get leftHeight() {
+        return this._leftHeight;
+    }
 
-  set leftHeight(value) {
-    this._leftHeight = value;
-  }
+    set leftHeight(value) {
+        this._leftHeight = value;
+    }
 
-  get rightHeight() {
-    return this._rightHeight;
-  }
+    get rightHeight() {
+        return this._rightHeight;
+    }
 
-  set rightHeight(value) {
-    this._rightHeight = value;
-  }
+    set rightHeight(value) {
+        this._rightHeight = value;
+    }
 
-  get value() {
-    return this._value;
-  }
+    get value() {
+        return this._value;
+    }
+
+    insert(value, info) {
+        let hDelta;
+
+        if (value < this.value) {
+            info.path.push(0);
+
+            this.left = this.left.insert(value, info);
+            info.height.push(0);
+            this.leftHeight = info.height.length;
+        } else {
+            info.path.push(1);
+
+            this.right = this.right.insert(value, info);
+            info.height.push(0);
+            this.rightHeight = info.height.length;
+        }
+
+        return this.checkValance(info);;
+    }
+
+    search(value) {
+        if (this.value === value) {
+            return true;
+        } else if (value < this.value) {
+            return this.left.search(value);
+        } else if (value > this.value) {
+            return this.right.search(value);
+        } else {
+            return false;
+        }
+    }
+
+    checkValance(info) {
+        let self = this;
+        let hDelta = this.rightHeight - this.leftHeight;
+
+        if (hDelta < -1 || hDelta > 1) {
+            console.log("Need rotation");
+            self = this.rotateNodes(info);
+
+            info.path.pop();
+            info.height.pop();
+        }
+
+        return self;
+    }
+
+    rotateNodes(info) {
+        let root = this;
+
+        if (info.path[info.path.length - 2] === 0) {
+            console.log("To the right.");
+            if (info.path[info.path.length - 1] === 1) {
+                console.log("Second form.");
+                let tempNode = this.left;
+                this.left = tempNode.right;
+                this.left.left = tempNode;
+
+                this.left.leftHeight += 1;
+                this.left.left.right = new NullNode();
+                this.left.left.rightHeight = 0;
+            }
+
+            console.log("First form");
+            root = this.left;
+            this.left = root.right;
+            root.right = this;
+
+            root.rightHeight += 1;
+            root.right.leftHeight -= 2;
+        } else {
+            console.log("To the left.");
+            if (info.path[info.path.length - 1] === 0) {
+                console.log("Second form.");
+                let tempNode = this.right;
+                this.right = tempNode.left;
+                this.right.right = tempNode;
+
+                this.right.rightHeight += 1;
+                this.right.right.left = new NullNode();
+                this.right.right.leftHeight = 0;
+            }
+
+            console.log("First form");
+            root = this.right;
+            this.right = root.left;
+            root.left = this;
+
+            root.leftHeight += 1;
+            root.left.rightHeight -= 2;
+        }
+
+        return root;
+    }
+
+    //Visitor
+    accept(visitor) {
+        visitor.visit(this);
+    }
+}
+
+class NullNode {
+    get left() {
+        return this;
+    }
+
+    get right() {
+        return this;
+    }
+
+    get leftHeight() {
+        return 0;
+    }
+
+    get rightHeight() {
+        return 0;
+    }
+
+    get value() {
+        return null;
+    }
+
+    insert(value, info) {
+        return new Node(value);
+    }
+
+    search(value) {
+        return false;
+    }
+
+    //Visitor
+    accept(visitor) {
+        visitor.visitNullNode(this);
+    }
+}
+
+//VISITORS
+class StringPrintVisitor {
+    constructor() {
+        this._build = "";
+    }
+
+    visit(node) {
+        this._build += "[";
+
+        node.left.accept(this);
+
+        this._build += "," + node.leftHeight + " " + node.value + " " + node.rightHeight + ","
+
+        node.right.accept(this);
+
+        this._build += "]";
+    }
+
+    visitNullNode(nullNode) {
+        this._build += " X ";
+    }
+
+    print() {
+        console.log(this._build);
+    }
+}
+
+class ArrayPrintVisitor {
+    constructor() {
+        this._build = [];
+    }
+
+    visit(node) {
+        node.left.accept(this);
+
+        this._build.push({
+            val: node.value,
+            lh: node.leftHeight,
+            rh: node.rightHeight
+        });
+
+        node.right.accept(this);
+    }
+
+    visitNullNode(nullNode) {
+        return;
+    }
+
+    print() {
+        console.log(this._build);
+    }
+}
+
+class SearchVisitor {
+    constructor(searchValue) {
+        this._searchValue = searchValue;
+        this._found = false;
+    }
+
+    visit(node) {
+        if (!this._found) {
+            if (node.value === this._searchValue) {
+                this._found = true;
+            } else if (this._searchValue < node.value) {
+                node.left.accept(this);
+            } else if (this._searchValue > node.value) {
+                node.right.accept(this);
+            }
+        }
+    }
+
+    visitNullNode(value) {
+        return;
+    }
+
+    wasFound() {
+        return this._found;
+    }
 }
 
 class Tree {
-  constructor() {
-    this._values = [];
-  }
-
-  insert(value) {
-    let info = {
-      path: [],
-      height: []
-    };
-
-    if (this._root == null) {
-      this._root = new Node(value, null, null);
-    } else if (!searchNode(this._root, value)) {
-      this._root = addNode(this._root, value, info);
-    } else {
-      console.log("Duplicated value: [" + value + "] - discarded");
+    constructor() {
+        this._root = new NullNode();
     }
-  }
 
-  search(value) {
-    if (searchNode(this._root, value)) {
-      console.log("Value [" + value + "] Found :D");
-    } else {
-      console.log("Value [" + value + "] Not found :(");
+    insert(value) {
+        let info = {
+            path: [],
+            height: []
+        };
+
+        if (!this._root.search(value)) {
+            this._root = this._root.insert(value, info);
+        } else {
+            console.log("Duplicated value: [" + value + "] - discarded");
+        }
     }
-  }
 
-  print() {
-    this._values = [];
+    //Visitor
+    search(value) {
+        let searchVisitor = new SearchVisitor(value);
 
-    printNode(this._root, this._values);
+        this._root.accept(searchVisitor);
 
-    console.log(this._values);
-  }
+        return searchVisitor.wasFound();
+    }
+
+    stringPrint() {
+        let stringPrintVisitor = new StringPrintVisitor();
+
+        this._root.accept(stringPrintVisitor);
+
+        stringPrintVisitor.print();
+    }
+
+    arrayPrint() {
+        let arrayPrintVisitor = new ArrayPrintVisitor();
+
+        this._root.accept(arrayPrintVisitor);
+
+        arrayPrintVisitor.print();
+    }
 }
 
 let arvolito = new Tree();
@@ -246,6 +316,14 @@ arvolito.insert(6);
 
 arvolito.insert(3);
 
-arvolito.search(23);
+let target = 23
+if (arvolito.search(target)) {
+    console.log("Value [" + target + "] Found :D");
+} else {
+    console.log("Value [" + target + "] Not found :(");
+}
 
-arvolito.print();
+//PRINT VISITORS
+arvolito.arrayPrint();
+arvolito.stringPrint();
+//[[[ X ,0 2 0, X ],1 3 0, X ],2 4 3,[[[ X ,0 6 0, X ],1 16 1,[ X ,0 18 0, X ]],2 23 1,[ X ,0 34 0, X ]]]
