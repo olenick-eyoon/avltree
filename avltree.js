@@ -1,7 +1,7 @@
 console.clear();
 
 class Node {
-    constructor(value, left, right) {
+    constructor(value) {
         this._value = value;
         this._left = new NullNode();
         this._right = new NullNode();
@@ -60,7 +60,7 @@ class Node {
             this.rightHeight = info.height.length;
         }
 
-        return this.checkValance(info);;
+        return this.checkValance(info, value);
     }
 
     search(value) {
@@ -75,12 +75,12 @@ class Node {
         }
     }
 
-    checkValance(info) {
+    checkValance(info, value) {
         let self = this;
         let hDelta = this.rightHeight - this.leftHeight;
 
         if (hDelta < -1 || hDelta > 1) {
-            console.log("Need rotation");
+            console.log("Need rotation - " + value + ", on " + this.value);  
             self = this.rotateNodes(info);
 
             info.path.pop();
@@ -92,17 +92,18 @@ class Node {
 
     rotateNodes(info) {
         let root = this;
+        let maxHeight = Math.max(this.leftHeight, this.rightHeight);
 
-        if (info.path[info.path.length - 2] === 0) {
+        if (info.path[info.path.length - maxHeight] === 0) {
             console.log("To the right.");
-            if (info.path[info.path.length - 1] === 1) {
+            if (info.path[info.path.length - maxHeight + 1] === 1) {
                 console.log("Second form.");
                 let tempNode = this.left;
                 this.left = tempNode.right;
                 this.left.left = tempNode;
-
-                this.left.leftHeight += 1;
                 this.left.left.right = new NullNode();
+
+                this.left.leftHeight = this.left.left.leftHeight + 1;
                 this.left.left.rightHeight = 0;
             }
 
@@ -115,14 +116,14 @@ class Node {
             root.right.leftHeight -= 2;
         } else {
             console.log("To the left.");
-            if (info.path[info.path.length - 1] === 0) {
+            if (info.path[info.path.length - maxHeight + 1] === 0) {
                 console.log("Second form.");
                 let tempNode = this.right;
                 this.right = tempNode.left;
                 this.right.right = tempNode;
-
-                this.right.rightHeight += 1;
                 this.right.right.left = new NullNode();
+
+                this.right.rightHeight = this.right.right.rightHeight + 1;
                 this.right.right.leftHeight = 0;
             }
 
@@ -305,6 +306,7 @@ class Tree {
 
 let arvolito = new Tree();
 
+arvolito.insert(0);
 arvolito.insert(3);
 arvolito.insert(34);
 arvolito.insert(23);
