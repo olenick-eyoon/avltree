@@ -15,6 +15,7 @@ function integral(func, lowerBound, upperBound, step) {
 
   for (var x = lowerBound; x < upperBound; x += step) {
     area += func(x) * step;
+    //$("body").append(x + " -> " + area + "<br/>");
   }
 
   return area;
@@ -32,26 +33,14 @@ function funcSin(x) {
   return Math.sin(x, 2);
 }
 
-function toRoundVolume(x){
-	return Math.pow(x, 2) * 3.14;
-}
-
-function funcConstVolume(x) {
-  return toRoundVolume(funcConst(x));
-}
-
-function funcQuadraticVolume(x) {
-  return toRoundVolume(funcQuadratic(x));
-}
-
-function funcSinVolume(x) {
-  return toRoundVolume(funcSin(x));
+function toRoundVolume(f){
+	return (x) => Math.pow(f(x), 2) * Math.PI;
 }
 
 addToLog("Const", integral(funcConst, 0, 10, 0.1));
-addToLog("Quadratic", integral(funcQuadratic, -10, 10, 0.1));
+addToLog("Quadratic", integral(funcQuadratic, 0, 10, 0.1));
 addToLog("Sin", integral(funcSin, -10, 10, 0.1));
 
-addToLog("ConstVolume", integral(funcConstVolume, 0, 10, 0.1));
-addToLog("QuadraticVolume", integral(funcQuadraticVolume, -10, 10, 0.1));
-addToLog("SinVolume", integral(funcSinVolume, -10, 10, 0.1));
+addToLog("ConstVolume", integral(toRoundVolume(funcConst), 0, 10, 0.1));
+addToLog("QuadraticVolume", integral(toRoundVolume(funcQuadratic), -10, 10, 0.1));
+addToLog("SinVolume", integral(toRoundVolume(funcSin), -10, 10, 0.1));
