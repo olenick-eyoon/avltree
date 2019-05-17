@@ -10,16 +10,22 @@ function render(product) {
   }
 }
 
-function cartesianProduct(product, pair, sets) {
+function cartesianProduct(sets) {
   const [first, ...rest] = sets;
 
-  if (!Array.isArray(first)) {
-    return [...product, pair];
+  if (!rest.length) {
+    return first.map(function(element) {
+      return [element];
+    });
   }
 
-  return first.reduce(function(subProduct, element) {
-    return cartesianProduct(subProduct, [...pair, element], rest);
-  }, product);
+  var product = cartesianProduct(rest);
+
+  return first.reduce(function(productBuild, element) {
+    return [...productBuild, ...product.map(function(productElement) {
+      return [element, ...productElement];
+    })];
+  }, []);
 }
 
 function getCartesianProduct() {
@@ -28,7 +34,7 @@ function getCartesianProduct() {
   if (arguments.length < 2) {
     return "At least two sets are required";
   }
-  console.log(arguments)
+
   for (var setIndex = 0; setIndex < arguments.length; setIndex++) {
     if (!Array.isArray(arguments[setIndex])) {
       return "At least one parameter is not an array";
@@ -41,7 +47,7 @@ function getCartesianProduct() {
     sets.push(arguments[setIndex]);
   }
 
-  return cartesianProduct([], [], sets);
+  return cartesianProduct(sets);
 }
 
 let set1 = [9, 3, 1, 7, 8];
